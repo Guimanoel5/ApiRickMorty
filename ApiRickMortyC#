@@ -1,0 +1,87 @@
+using System;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace tentativas
+{
+    class Location
+    {
+        public string name { get; set; } = string.Empty;
+        public string url { get; set; } = string.Empty;
+    }
+
+    class Origin
+    {
+        public string name { get; set; } = string.Empty;
+        public string url { get; set; } = string.Empty;
+    }
+
+    class Character
+    {
+        public int id { get; set; }
+        public string name { get; set; } = string.Empty;
+        public string status { get; set; } = string.Empty;
+        public string species { get; set; } = string.Empty;
+        public string gender { get; set; } = string.Empty;
+        public Location location { get; set; } = new Location();
+        public Origin origin { get; set; } = new Origin();
+    }
+
+    class Program
+    {
+        static async Task Main(string[] args)
+        {
+
+            string option;
+            do
+            {
+                Console.WriteLine("");
+                Console.WriteLine("Learn more about the show Rick and Morty.");
+                Console.WriteLine("1. Learn more about the characters.");
+                Console.WriteLine("2. Exit.");
+                Console.WriteLine("");
+                option = Console.ReadLine()!;
+                switch (option)
+                {
+
+                    case "1":
+                        string urlchar = "https://rickandmortyapi.com/api/character/";
+                        HttpClient http = new HttpClient();
+                        Console.WriteLine("");
+                        Console.WriteLine("Type a number to search in the Rickpedia.");
+                        string number = Console.ReadLine()!;
+                        var response = await http.GetAsync(urlchar + number);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string jsonResponse = await response.Content.ReadAsStringAsync();
+                            Character character = JsonSerializer.Deserialize<Character>(jsonResponse);
+                            if (character != null)
+                            {
+                                Console.WriteLine($"Name: {character.name}");
+                                Console.WriteLine($"Status: {character.status}");
+                                Console.WriteLine($"Species: {character.species}");
+                                Console.WriteLine($"Gender: {character.gender}");
+                                Console.WriteLine($"Location: {character.location.name}");
+                                Console.WriteLine($"Origin: {character.origin.name}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error: Unable to fetch character data.");
+                        }
+                        break;
+
+                    default:
+                        Console.WriteLine("");
+                        Console.WriteLine("Invalid option.");
+                        Console.WriteLine("");
+                        break;
+
+                }
+
+            } while (option != "2");
+        }
+    }
+}
